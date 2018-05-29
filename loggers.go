@@ -43,7 +43,7 @@ func (l *levelOutput) InitColours() {
 // logLevel >=4 outputs all logs; =3 outputs Print,Warn,Error; =2 outputs Warn,Error; =1 outputs Error, =0 suppresses all
 func (l *levelOutput) Init(logLevel int, dateStamps bool, timeStamps bool) {
 
-	// init the colours in case it hasn't been done already
+	// setup the colours
 	l.InitColours()
 
 	// setup log handles
@@ -110,29 +110,29 @@ func (l *levelOutput) setupLoggers(overShareWriter io.Writer, printWriter io.Wri
 	if dateStamps && timeStamps {
 		l.OverShare = l.setupLoggerWithDatesAndTimes(overShareWriter, l.green, OverSharePrefix)
 		l.Print = l.setupLoggerWithDatesAndTimes(printWriter, l.green, PrintPrefix)
-		l.OverShareNP = l.setupLoggerWithDatesAndTimes(overShareWriter, l.green, "")
-		l.PrintNP = l.setupLoggerWithDatesAndTimes(printWriter, l.green, "")
+		l.OverShareNP = l.setupNP(overShareWriter)
+		l.PrintNP = l.setupNP(printWriter)
 		l.Warn = l.setupLoggerWithDatesAndTimes(warnWriter, l.magenta, WarnPrefix)
 		l.Error = l.setupLoggerWithDatesAndTimes(errorWriter, l.red, ErrorPrefix)
 	} else if dateStamps && !timeStamps {
 		l.OverShare = l.setupLoggerWithDates(overShareWriter, l.green, OverSharePrefix)
 		l.Print = l.setupLoggerWithDates(printWriter, l.green, PrintPrefix)
-		l.OverShareNP = l.setupLoggerWithDates(overShareWriter, l.green, "")
-		l.PrintNP = l.setupLoggerWithDates(printWriter, l.green, "")
+		l.OverShareNP = l.setupNP(overShareWriter)
+		l.PrintNP = l.setupNP(printWriter)
 		l.Warn = l.setupLoggerWithDates(warnWriter, l.magenta, WarnPrefix)
 		l.Error = l.setupLoggerWithDates(errorWriter, l.red, ErrorPrefix)
 	} else if timeStamps && !dateStamps {
 		l.OverShare = l.setupLoggerWithTimes(overShareWriter, l.green, OverSharePrefix)
 		l.Print = l.setupLoggerWithTimes(printWriter, l.green, PrintPrefix)
-		l.OverShareNP = l.setupLoggerWithTimes(overShareWriter, l.green, "")
-		l.PrintNP = l.setupLoggerWithTimes(printWriter, l.green, "")
+		l.OverShareNP = l.setupNP(overShareWriter)
+		l.PrintNP = l.setupNP(printWriter)
 		l.Warn = l.setupLoggerWithTimes(warnWriter, l.magenta, WarnPrefix)
 		l.Error = l.setupLoggerWithTimes(errorWriter, l.red, ErrorPrefix)
 	} else {
 		l.OverShare = l.setupLogger(overShareWriter, l.green, OverSharePrefix)
 		l.Print = l.setupLogger(printWriter, l.green, PrintPrefix)
-		l.OverShareNP = l.setupLogger(overShareWriter, l.green, "")
-		l.PrintNP = l.setupLogger(printWriter, l.green, "")
+		l.OverShareNP = l.setupNP(overShareWriter)
+		l.PrintNP = l.setupNP(printWriter)
 		l.Warn = l.setupLogger(warnWriter, l.magenta, WarnPrefix)
 		l.Error = l.setupLogger(errorWriter, l.red, ErrorPrefix)
 	}
@@ -153,4 +153,9 @@ func (l *levelOutput) setupLoggerWithTimes(outputWriter io.Writer, colouriser *c
 
 func (l *levelOutput) setupLogger(outputWriter io.Writer, colouriser *color.Color, prefixText string) (logger *log.Logger) {
 	return log.New(outputWriter, colouriser.Sprintf(prefixText), 0)
+}
+
+// include this cause windows sucks
+func (l *levelOutput) setupNP(outputWriter io.Writer) (logger *log.Logger) {
+	return log.New(outputWriter, "", 0)
 }
