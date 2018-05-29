@@ -2,6 +2,7 @@ package main
 
 func getEffDiceMap() map[int]string {
 
+	// this wordlist is from the EFF(https://www.eff.org/)
 	wordlist := map[int]string{
 		11111: "abacus",
 		11112: "abdomen",

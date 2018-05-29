@@ -43,20 +43,8 @@ func main() {
 	o.InitColours()
 
 	flag.Usage = func() {
-		banner := o.magenta.Sprintf(`
-    ___________________       __               __    
-   / ____/ ____/ ____/ |     / /___  _________/ /____
-  / __/ / /_  / /_   | | /| / / __ \/ ___/ __  / ___/
- / /___/ __/ / __/   | |/ |/ / /_/ / /  / /_/ (__  ) 
-/_____/_/   /_/      |__/|__/\____/_/   \__,_/____/ `)
-		banner += "\n" + `Author:  Morgaine "sectorsect" Timms
-License: MIT
-Warning: Some of the following options when used in combination can
-         significantly weaken the pass-phrases generated. 
-         You probably know what you are doing though, yeah?`
-
-		fmt.Printf("%v\n", strings.Replace(banner, "#", o.magenta.Sprintf("#"), -1))
-		fmt.Println("\n\nThings It Does:")
+		banner := bannerGet()
+		fmt.Printf(banner)
 		flag.PrintDefaults()
 	}
 
@@ -189,7 +177,7 @@ func generatePassphrases(s ewState) ([]string, error) {
 		}
 
 		// truncate, keeping in mind possible next steps
-		if s.maximumChars != -1 {
+		if s.maximumChars != -1 && s.maximumChars < len(outputString) {
 			slicePos := s.maximumChars
 			// figure out how many extra chars to lose
 			if !s.preventSpecials {

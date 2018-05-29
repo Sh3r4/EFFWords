@@ -1,3 +1,6 @@
 .idea/
 EFFWords
 EFFWords.exe
+macos32/
+win32/
+nix32/
