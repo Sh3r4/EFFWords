@@ -17,6 +17,6 @@ Warning: Some of the following options when used in combination can
          significantly weaken the pass-phrases generated. 
          You probably know what you are doing though, yeah?`
 
-	banner += "\n\nThings It Does:\n"
+	banner += "\n\n"
 	return banner
 }

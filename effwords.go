@@ -10,6 +10,7 @@ import (
 
 	"fmt"
 
+	"github.com/nbutton23/zxcvbn-go"
 	flag "github.com/ogier/pflag"
 )
 
@@ -19,6 +20,8 @@ type ewState struct {
 	verbose         bool
 	wordCount       int
 	outputFile      string
+	useZxcvbn       bool
+	checkPass       string
 	minimumChars    int
 	maximumChars    int
 	randomCaps      bool
@@ -45,6 +48,12 @@ func main() {
 	flag.Usage = func() {
 		banner := bannerGet()
 		fmt.Printf(banner)
+		fmt.Printf("\nOutput Formats:")
+		fmt.Printf("\n  * standard:")
+		fmt.Printf("\n    	password")
+		fmt.Printf("\n  * crack-time (-z):")
+		fmt.Printf("\n    	password [{seconds}:{human_readable}]\n")
+		fmt.Printf("\nThings It Does:\n")
 		flag.PrintDefaults()
 	}
 
@@ -53,6 +62,10 @@ func main() {
 	flag.BoolVarP(&s.verbose, "verbose", "v", false, "Show all the things")
 	flag.IntVarP(&s.wordCount, "wordcount", "w", 4, "Number of words per passphrase.")
 	flag.StringVarP(&s.outputFile, "output-to-file", "o", "", "Filepath to output to")
+
+	// allow use of zxcvbn
+	flag.BoolVarP(&s.useZxcvbn, "crack-time", "z", false, "Check password strength with zxcvbn")
+	flag.StringVarP(&s.checkPass, "check-this-pass", "Z", "", "Don't generate, just evaluate the strength of a provided pass")
 
 	// allow char specs
 	flag.IntVarP(&s.minimumChars, "minimum-chars", "m", -1, "Minimum characters for passphrases.")
@@ -91,10 +104,26 @@ func main() {
 	}
 
 	// now we are ready, get the wordlist into state and generate
-	s.wordList = getEffDiceMap()
-	outputList, err := generatePassphrases(s)
-	if err != nil {
-		o.Warn.Fatalln(err)
+	var outputList []string
+	var err error
+	if s.checkPass == "" {
+		s.wordList = getEffDiceMap()
+		outputList, err = generatePassphrases(s)
+		if err != nil {
+			o.Warn.Fatalln(err)
+		}
+	} else {
+		outputList = []string{s.checkPass}
+	}
+
+	// modify the strings to include a crack-time if necessary
+	if s.checkPass != "" || s.useZxcvbn {
+		var changeOutputs []string
+		for _, p := range outputList {
+			complexity := zxcvbn.PasswordStrength(p, []string{})
+			changeOutputs = append(changeOutputs, fmt.Sprintf("%s [%e:%s]", p, complexity.CrackTime, complexity.CrackTimeDisplay))
+		}
+		outputList = changeOutputs
 	}
 
 	// if there is a filepath stated, attempt to write there otherwise to console
