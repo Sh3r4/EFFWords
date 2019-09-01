@@ -64,7 +64,7 @@ That said, since this is just a personal project I am putting up on the internet
   / __/ / /_  / /_   | | /| / / __ \/ ___/ __  / ___/
  / /___/ __/ / __/   | |/ |/ / /_/ / /  / /_/ (__  )
 /_____/_/   /_/      |__/|__/\____/_/   \__,_/____/
-Author:  Morgaine Timms   (@sectorsect)
+Author:  Morgaine Timms   (@sh3r4)
 License: MIT
 Warning: Some of the following options when used in combination can
          significantly weaken the pass-phrases generated.

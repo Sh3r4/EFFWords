@@ -11,7 +11,7 @@ func bannerGet() string {
   / __/ / /_  / /_   | | /| / / __ \/ ___/ __  / ___/
  / /___/ __/ / __/   | |/ |/ / /_/ / /  / /_/ (__  ) 
 /_____/_/   /_/      |__/|__/\____/_/   \__,_/____/ `)
-	banner += "\n" + `Author:  Morgaine Timms   (@sectorsect)
+	banner += "\n" + `Author:  Morgaine Timms   (@sh3r4)
 License: MIT
 Warning: Some of the following options when used in combination can
          significantly weaken the pass-phrases generated. 

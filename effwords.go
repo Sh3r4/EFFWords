@@ -10,6 +10,7 @@ import (
 
 	"fmt"
 
+	o "github.com/Sh3r4/badlogger"
 	"github.com/nbutton23/zxcvbn-go"
 	flag "github.com/ogier/pflag"
 )
@@ -37,13 +38,9 @@ const sanityCheck = 100000
 
 var sanity int
 
-// logger
-var o levelOutput
-
 func main() {
 	// declarations
 	var s ewState
-	o.InitColours()
 
 	flag.Usage = func() {
 		banner := bannerGet()
@@ -84,23 +81,21 @@ func main() {
 
 	// assume leftover arguments are meant to be the number of passwords to generate unless there are too many
 	if len(flag.Args()) > 1 {
-		o.Warn.Println("Too many non-flagged arguments found. Exiting.")
+		o.Warn("Too many non-flagged arguments found. Exiting.")
 		flag.Usage()
 		os.Exit(1)
 	}
 	if s.quantity == 1 && len(flag.Args()) == 1 {
 		argsQuantity, err := strconv.Atoi(flag.Args()[0])
 		if err != nil {
-			o.Fatality.Fatalln(err)
+			o.Fatal("atoi failed", err)
 		}
 		s.quantity = argsQuantity
 	}
 
-	// init loggers
+	// init loggers to verbose
 	if s.verbose {
-		o.Init(4, false, false)
-	} else {
-		o.Init(3, false, false)
+		o.NewBasicLogger(4, false, false)
 	}
 
 	// now we are ready, get the wordlist into state and generate
@@ -110,7 +105,7 @@ func main() {
 		s.wordList = getEffDiceMap()
 		outputList, err = generatePassphrases(s)
 		if err != nil {
-			o.Warn.Fatalln(err)
+			o.Fatal("generate failed", err)
 		}
 	} else {
 		outputList = []string{s.checkPass}
@@ -131,7 +126,7 @@ func main() {
 		fileOutput(outputList, s.outputFile)
 	} else {
 		for _, v := range outputList {
-			o.PrintNP.Println(v)
+			fmt.Println(v)
 		}
 	}
 
@@ -186,7 +181,7 @@ func generatePassphrases(s ewState) ([]string, error) {
 		return nil, errors.New("requested capitalisation index is out of range")
 	}
 
-	o.OverShare.Println("Generating " + strconv.Itoa(s.wordCount) + " words per passphrase.")
+	o.Debug("Generating " + strconv.Itoa(s.wordCount) + " words per passphrase.")
 
 	// make flow easier if competing flags were set
 	if s.preventCaps {
@@ -196,7 +191,7 @@ func generatePassphrases(s ewState) ([]string, error) {
 	// loop for the number of passwords requested
 	for index := 0; index < s.quantity; index++ {
 		// generate the requested words
-		o.OverShare.Println("Rolling!")
+		o.Debug("Rolling!")
 		outputString := ""
 		// TODO: implement choice of which position is capsWordIndex
 		if s.preventCaps || s.randomCaps {
@@ -239,7 +234,7 @@ func generatePassphrases(s ewState) ([]string, error) {
 			outputString = insertCharAtRandomPos(outputString, insertionInt)
 		}
 
-		o.OverShare.Println("Generated: " + outputString)
+		o.Debug("Generated: " + outputString)
 
 		// check if a miniumum password length was requested
 		if s.minimumChars != -1 {
@@ -278,7 +273,7 @@ func lookupAndConcatEffWords(quantity int, upperCasedIndex int, ignoreUpperCaseB
 	for wordRolls := 0; wordRolls < quantity; wordRolls++ {
 		key := rollFiveDice()
 		if val, ok := wordList[key]; ok {
-			o.OverShare.Println("Rolled [" + strconv.Itoa(key) + "]. Found " + val)
+			o.Debug("Rolled [" + strconv.Itoa(key) + "]. Found " + val)
 
 			// capitalise if it is so written
 			if !ignoreUpperCaseByWordIndex {
@@ -305,7 +300,7 @@ func oneStepCloserToTheEdge() error {
 			"(try raising wordcount per passphrase)",
 		}
 		for _, message := range everythingYouSayToMe {
-			o.Warn.Println(message)
+			o.Warn(message)
 		}
 		return errors.New("sanity check detected possible infinite loop")
 	}

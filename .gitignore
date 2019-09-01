@@ -7,3 +7,5 @@ nix32/
 macos32.zip
 win32.zip
 nix32.zip
+vendor/
+bin/
